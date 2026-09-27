@@ -14,7 +14,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             to="/"
-            className="text-xl font-bold text-gray-900 tracking-tight"
+            className="text-xl px-3 md:px-0 font-bold text-gray-900 tracking-tight"
           >
             Social App<span className="text-indigo-600">.</span>
           </Link>
@@ -89,10 +89,12 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile dropdown — add your own toggle logic to show/hide this */}
+      {/* Mobile dropdown */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-          isClicked ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isClicked
+            ? "max-h-96 flex-col gap-  opacity-100"
+            : "max-h-0 opacity-0"
         }`}
       >
         <NavLink
@@ -100,7 +102,7 @@ export default function Navbar() {
           end
           onClick={() => setIsClicked(false)}
           className={({ isActive }) =>
-            `block px-5 py-2 text-sm font-medium rounded-lg transition-colors  ${
+            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
               isActive
                 ? "text-indigo-600 bg-indigo-50"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -113,7 +115,7 @@ export default function Navbar() {
           to="/login"
           onClick={() => setIsClicked(false)}
           className={({ isActive }) =>
-            `block px-5 py-2 text-sm font-medium rounded-lg transition-colors ${
+            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
               isActive
                 ? "text-indigo-600 bg-indigo-50"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -126,7 +128,7 @@ export default function Navbar() {
           to="/register"
           onClick={() => setIsClicked(false)}
           className={({ isActive }) =>
-            `block px-5 py-2 text-sm font-medium rounded-lg transition-colors ${
+            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
               isActive
                 ? "text-indigo-600 bg-indigo-50"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -138,7 +140,7 @@ export default function Navbar() {
         <NavLink
           to="/register"
           onClick={() => setIsClicked(false)}
-          className="block mt-2 px-3 py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+          className="block my-4 px-3 w-[95%] mx-auto py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
         >
           Get started
         </NavLink>

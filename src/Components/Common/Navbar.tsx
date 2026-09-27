@@ -92,58 +92,58 @@ export default function Navbar() {
       {/* Mobile dropdown */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-          isClicked
-            ? "max-h-96 flex-col gap-  opacity-100"
-            : "max-h-0 opacity-0"
+          isClicked ? "max-h-96  opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <NavLink
-          to="/"
-          end
-          onClick={() => setIsClicked(false)}
-          className={({ isActive }) =>
-            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
-              isActive
-                ? "text-indigo-600 bg-indigo-50"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`
-          }
-        >
-          Home
-        </NavLink>
-        <NavLink
-          to="/login"
-          onClick={() => setIsClicked(false)}
-          className={({ isActive }) =>
-            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
-              isActive
-                ? "text-indigo-600 bg-indigo-50"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`
-          }
-        >
-          Login
-        </NavLink>
-        <NavLink
-          to="/register"
-          onClick={() => setIsClicked(false)}
-          className={({ isActive }) =>
-            `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
-              isActive
-                ? "text-indigo-600 bg-indigo-50"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            }`
-          }
-        >
-          Register
-        </NavLink>
-        <NavLink
-          to="/register"
-          onClick={() => setIsClicked(false)}
-          className="block my-4 px-3 w-[95%] mx-auto py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
-        >
-          Get started
-        </NavLink>
+        <div className="flex flex-col gap-2">
+          <NavLink
+            to="/"
+            end
+            onClick={() => setIsClicked(false)}
+            className={({ isActive }) =>
+              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
+                isActive
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`
+            }
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/login"
+            onClick={() => setIsClicked(false)}
+            className={({ isActive }) =>
+              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
+                isActive
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`
+            }
+          >
+            Login
+          </NavLink>
+          <NavLink
+            to="/register"
+            onClick={() => setIsClicked(false)}
+            className={({ isActive }) =>
+              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
+                isActive
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`
+            }
+          >
+            Register
+          </NavLink>
+          <NavLink
+            to="/register"
+            onClick={() => setIsClicked(false)}
+            className="block my-4 px-3 w-[95%] mx-auto py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+          >
+            Get started
+          </NavLink>
+        </div>
       </div>
     </nav>
   );

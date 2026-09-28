@@ -2,33 +2,31 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useState } from "react";
 import { showSuccessToast, showErrorToast } from "../lib/toast";
+import {
+  RegisterSchema,
+  type RegisterFormData,
+} from "../schemas/Register.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function RegisterForm() {
-  interface RegisterFormData {
-    name: string;
-    email: string;
-    dateOfBirth: string;
-    gender: string;
-    password: string;
-    rePassword: string;
-  }
   const form = useForm<RegisterFormData>({
     defaultValues: {
       name: "",
       email: "",
       dateOfBirth: "",
-      gender: "",
+      gender: "male",
       password: "",
       rePassword: "",
     },
+    resolver: zodResolver(RegisterSchema),
   });
-  
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-    watch,
+    formState: { errors, touchedFields },
+    // watch,
   } = form;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,13 +69,16 @@ export default function RegisterForm() {
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="text"
-              {...register("name", {
-                required: { value: true, message: "Name is required" },
-                minLength: {
-                  value: 3,
-                  message: "Name must be at least 3 characters",
-                },
-              })}
+              {...register(
+                "name",
+                //   {
+                //   required: { value: true, message: "Name is required" },
+                //   minLength: {
+                //     value: 3,
+                //     message: "Name must be at least 3 characters",
+                //   },
+                // }
+              )}
               id="name"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-indigo-600 peer transition-colors"
               placeholder=" "
@@ -88,7 +89,7 @@ export default function RegisterForm() {
             >
               Enter your name
             </label>
-            {errors.name && (
+            {errors.name && touchedFields.name && (
               <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
             )}
           </div>
@@ -96,13 +97,16 @@ export default function RegisterForm() {
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="email"
-              {...register("email", {
-                required: { value: true, message: "Email is required" },
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Enter a valid email address",
-                },
-              })}
+              {...register(
+                "email",
+                //   {
+                //   required: { value: true, message: "Email is required" },
+                //   pattern: {
+                //     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                //     message: "Enter a valid email address",
+                //   },
+                // }
+              )}
               id="email"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-indigo-600 peer transition-colors"
               placeholder=" "
@@ -113,7 +117,7 @@ export default function RegisterForm() {
             >
               Email address
             </label>
-            {errors.email && (
+            {errors.email && touchedFields.email && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.email.message}
               </p>
@@ -123,23 +127,26 @@ export default function RegisterForm() {
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="date"
-              {...register("dateOfBirth", {
-                required: { value: true, message: "Date of birth is required" },
-                validate: (value) => {
-                  const birthDate = new Date(value);
-                  const today = new Date();
+              {...register(
+                "dateOfBirth",
+                //   {
+                //   required: { value: true, message: "Date of birth is required" },
+                //   validate: (value) => {
+                //     const birthDate = new Date(value);
+                //     const today = new Date();
 
-                  let age = today.getFullYear() - birthDate.getFullYear();
-                  const hasHadBirthdayThisYear =
-                    today.getMonth() > birthDate.getMonth() ||
-                    (today.getMonth() === birthDate.getMonth() &&
-                      today.getDate() >= birthDate.getDate());
+                //     let age = today.getFullYear() - birthDate.getFullYear();
+                //     const hasHadBirthdayThisYear =
+                //       today.getMonth() > birthDate.getMonth() ||
+                //       (today.getMonth() === birthDate.getMonth() &&
+                //         today.getDate() >= birthDate.getDate());
 
-                  if (!hasHadBirthdayThisYear) age--;
+                //     if (!hasHadBirthdayThisYear) age--;
 
-                  return age >= 18 || "You must be at least 18 years old";
-                },
-              })}
+                //     return age >= 18 || "You must be at least 18 years old";
+                //   },
+                // }
+              )}
               id="dateofbirth"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-indigo-600 peer transition-colors"
               placeholder=" "
@@ -150,7 +157,7 @@ export default function RegisterForm() {
             >
               Date of birth
             </label>
-            {errors.dateOfBirth && (
+            {errors.dateOfBirth && touchedFields.dateOfBirth && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.dateOfBirth.message}
               </p>
@@ -166,9 +173,12 @@ export default function RegisterForm() {
             </label>
             <select
               id="gender"
-              {...register("gender", {
-                required: { value: true, message: "Please select a gender" },
-              })}
+              {...register(
+                "gender",
+                //   {
+                //   required: { value: true, message: "Please select a gender" },
+                // }
+              )}
               className="block w-full px-3 py-2.5 bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-600 transition-colors"
             >
               <option selected value="" disabled>
@@ -177,7 +187,7 @@ export default function RegisterForm() {
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-            {errors.gender && (
+            {errors.gender && touchedFields.gender && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.gender.message}
               </p>
@@ -187,19 +197,22 @@ export default function RegisterForm() {
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="password"
-              {...register("password", {
-                required: { value: true, message: "Password is required" },
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters",
-                },
-                pattern: {
-                  value:
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).+$/,
-                  message:
-                    "Password must include an uppercase letter, a lowercase letter, and a special character",
-                },
-              })}
+              {...register(
+                "password",
+                //   {
+                //   required: { value: true, message: "Password is required" },
+                //   minLength: {
+                //     value: 8,
+                //     message: "Password must be at least 8 characters",
+                //   },
+                //   pattern: {
+                //     value:
+                //       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).+$/,
+                //     message:
+                //       "Password must include an uppercase letter, a lowercase letter, and a special character",
+                //   },
+                // }
+              )}
               id="password"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-indigo-600 peer transition-colors"
               placeholder=" "
@@ -215,7 +228,7 @@ export default function RegisterForm() {
               <li>One uppercase and one lowercase letter</li>
               <li>One special character</li>
             </ul>
-            {errors.password && (
+            {errors.password && touchedFields.password && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.password.message}
               </p>
@@ -225,14 +238,17 @@ export default function RegisterForm() {
           <div className="relative z-0 w-full mb-8 group">
             <input
               type="password"
-              {...register("rePassword", {
-                required: {
-                  value: true,
-                  message: "Please confirm your password",
-                },
-                validate: (value) =>
-                  value === watch("password") || "Passwords do not match",
-              })}
+              {...register(
+                "rePassword",
+                //   {
+                //   required: {
+                //     value: true,
+                //     message: "Please confirm your password",
+                //   },
+                //   validate: (value) =>
+                //     value === watch("password") || "Passwords do not match",
+                // }
+              )}
               id="rePassword"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-indigo-600 peer transition-colors"
               placeholder=" "
@@ -243,7 +259,7 @@ export default function RegisterForm() {
             >
               Retype your password
             </label>
-            {errors.rePassword && (
+            {errors.rePassword && touchedFields.rePassword && (
               <p className="mt-1 text-xs text-red-600">
                 {errors.rePassword.message}
               </p>

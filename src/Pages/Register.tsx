@@ -7,6 +7,7 @@ import {
   type RegisterFormData,
 } from "../schemas/Register.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
   const form = useForm<RegisterFormData>({
@@ -31,16 +32,18 @@ export default function RegisterForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const navigate = useNavigate();
+
   async function onSubmit(data: RegisterFormData) {
     setIsSubmitting(true);
     try {
-      const response = await axios.post(
+      const { data: res } = await axios.post(
         "https://route-posts.routemisr.com/users/signup",
         data,
       );
-      console.log("Success:", response.data);
-      showSuccessToast("Account created successfully!");
+      showSuccessToast(res.message || "Account created successfully!");
       reset();
+      navigate("/login");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         showErrorToast(
@@ -273,6 +276,15 @@ export default function RegisterForm() {
           >
             {isSubmitting ? "Creating account..." : "Create account"}
           </button>
+          <p className="mt-6 text-sm text-center text-gray-500">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+            >
+              Log in
+            </Link>
+          </p>
         </form>
       </div>
     </div>

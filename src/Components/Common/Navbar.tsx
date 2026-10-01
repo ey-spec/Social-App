@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Navbar() {
   const [isClicked, setIsClicked] = useState(false);
 
   function toggleMenu() {
     setIsClicked((prev) => !prev);
+  }
+
+  const navigate = useNavigate();
+
+  const { UserToken, setUserToken } = useContext(AuthContext);
+
+  function logout() {
+    setUserToken(null);
+    localStorage.removeItem("UserToken");
+    navigate("/login");
   }
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -21,49 +32,50 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "text-indigo-600 bg-indigo-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "text-indigo-600 bg-indigo-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`
-              }
-            >
-              Login
-            </NavLink>
-            <NavLink
-              to="/register"
-              className={({ isActive }) =>
-                `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "text-indigo-600 bg-indigo-50"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`
-              }
-            >
-              Register
-            </NavLink>
-            <Link
-              to="/register"
-              className="ml-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm shadow-indigo-200"
-            >
-              Get started
-            </Link>
+            {UserToken ? (
+              <>
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  Home
+                </NavLink>
+                <button
+                  onClick={logout}
+                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) =>
+                    `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  Login
+                </NavLink>
+                <Link
+                  to="/register"
+                  className="ml-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors shadow-sm shadow-indigo-200"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -96,53 +108,57 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-2">
-          <NavLink
-            to="/"
-            end
-            onClick={() => setIsClicked(false)}
-            className={({ isActive }) =>
-              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
-                isActive
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/login"
-            onClick={() => setIsClicked(false)}
-            className={({ isActive }) =>
-              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
-                isActive
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`
-            }
-          >
-            Login
-          </NavLink>
-          <NavLink
-            to="/register"
-            onClick={() => setIsClicked(false)}
-            className={({ isActive }) =>
-              `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
-                isActive
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`
-            }
-          >
-            Register
-          </NavLink>
-          <NavLink
-            to="/register"
-            onClick={() => setIsClicked(false)}
-            className="block my-4 px-3 w-[95%] mx-auto py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
-          >
-            Get started
-          </NavLink>
+          {UserToken ? (
+            <>
+              <NavLink
+                to="/"
+                end
+                onClick={() => setIsClicked(false)}
+                className={({ isActive }) =>
+                  `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
+                    isActive
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`
+                }
+              >
+                Home
+              </NavLink>
+              <button
+                onClick={() => {
+                  setIsClicked(false);
+                  logout();
+                }}
+                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto text-left mb-2"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                onClick={() => setIsClicked(false)}
+                className={({ isActive }) =>
+                  `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto ${
+                    isActive
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`
+                }
+              >
+                Login
+              </NavLink>
+
+              <NavLink
+                to="/register"
+                onClick={() => setIsClicked(false)}
+                className="block my-4 px-3 w-[95%] mx-auto py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+              >
+                Get started
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </nav>

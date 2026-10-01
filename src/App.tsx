@@ -6,15 +6,39 @@ import ErrorPage from "./Pages/Error";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoginForm from "./Pages/Login";
+import AuthContextProvider from "./context/AuthContext";
+import { ProtectedRoute } from "./Components/ProtectedRoute";
+import { GuestRoute } from "./Components/GuestRoute";
 
 const routes = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "register", element: <RegisterForm /> },
-      { path: "login", element: <LoginForm /> },
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "register",
+        element: (
+          <GuestRoute>
+            <RegisterForm />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "login",
+        element: (
+          <GuestRoute>
+            <LoginForm />
+          </GuestRoute>
+        ),
+      },
       { path: "*", element: <ErrorPage /> },
     ],
   },
@@ -23,13 +47,15 @@ const routes = createBrowserRouter([
 function App() {
   return (
     <>
-      <RouterProvider router={routes} />
-      <ToastContainer
-        position="bottom-right"
-        theme="colored"
-        transition={Slide}
-        limit={3}
-      />
+      <AuthContextProvider>
+        <RouterProvider router={routes} />
+        <ToastContainer
+          position="bottom-right"
+          theme="colored"
+          transition={Slide}
+          limit={3}
+        />
+      </AuthContextProvider>
     </>
   );
 }

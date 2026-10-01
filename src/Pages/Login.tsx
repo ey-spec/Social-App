@@ -4,6 +4,8 @@ import { showSuccessToast, showErrorToast } from "../lib/toast";
 import { loginSchema, type LoginFormData } from "../schemas/Login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function LoginForm() {
   const form = useForm<LoginFormData>({
@@ -22,12 +24,16 @@ export default function LoginForm() {
 
   const navigate = useNavigate();
 
+  const { UserToken, setUserToken } = useContext(AuthContext);
+
   async function onSubmit(data: LoginFormData) {
     try {
       const { data: res } = await axios.post(
         "https://route-posts.routemisr.com/users/signin",
         data,
       );
+      localStorage.setItem("UserToken", res.data.token);
+      setUserToken(localStorage.getItem("UserToken"));
       showSuccessToast(res.message || "Welcome back!");
       navigate("/");
     } catch (error) {

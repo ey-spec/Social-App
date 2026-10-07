@@ -9,6 +9,10 @@ import LoginForm from "./Pages/Login";
 import AuthContextProvider from "./context/AuthContext";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { GuestRoute } from "./Components/GuestRoute";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+
+const query = new QueryClient()
 
 const routes = createBrowserRouter([
   {
@@ -47,15 +51,17 @@ const routes = createBrowserRouter([
 function App() {
   return (
     <>
-      <AuthContextProvider>
-        <RouterProvider router={routes} />
-        <ToastContainer
-          position="bottom-right"
-          theme="colored"
-          transition={Slide}
-          limit={3}
-        />
-      </AuthContextProvider>
+      <QueryClientProvider client={query}>
+        <AuthContextProvider>
+          <RouterProvider router={routes} />
+          <ToastContainer
+            position="bottom-right"
+            theme="colored"
+            transition={Slide}
+            limit={3}
+          />
+        </AuthContextProvider>
+      </QueryClientProvider>
     </>
   );
 }

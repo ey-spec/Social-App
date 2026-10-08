@@ -1,9 +1,51 @@
 // src/Components/Posts/PostCard.tsx
+import { Link } from "react-router-dom";
 import { formatDate, timeAgo } from "../../Helpers/formatDate";
-import type { Post } from "../../Types/post.types";
+import type { CommentsResponse, Post } from "../../Types/post.types";
 import { FaHeart, FaComment, FaShare } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import CommentItem from "../Comments/CommentItem";
+import CommentForm from "../Comments/CommentForm";
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  post,
+  isPostDetails,
+}: {
+  post: Post;
+  isPostDetails: boolean;
+}) {
+  async function getPostComments() {
+    const { data } = await axios.get<CommentsResponse>(
+      `https://route-posts.routemisr.com/posts/${post._id}/comments?page=1&limit=10`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("UserToken")}`,
+        },
+      },
+    );
+    return data.data.comments;
+  }
+
+  const {
+    data: AllComments,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["PostComments", post._id],
+    queryFn: getPostComments,
+    enabled: isPostDetails,
+  });
+
+  if (isError) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error.message}
+        </div>
+      </div>
+    );
+  }
   return (
     <article className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white shadow-lg shadow-indigo-100/60 p-5">
       {/* User details */}
@@ -52,13 +94,14 @@ export default function PostCard({ post }: { post: Post }) {
           <span>{post.likesCount}</span>
         </button>
 
-        <button
+        <Link
+          to={`/${post._id}`}
           type="button"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-600 transition-colors"
         >
           <FaComment className="w-4 h-4" />
           <span>{post.commentsCount}</span>
-        </button>
+        </Link>
 
         <button
           type="button"
@@ -68,44 +111,41 @@ export default function PostCard({ post }: { post: Post }) {
           <span>{post.sharesCount}</span>
         </button>
       </div>
-      {/* Top comment */}
-      {post.topComment && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-start gap-2.5">
-            <img
-              src={post.topComment.commentCreator.photo}
-              alt={post.topComment.commentCreator.name}
-              className="w-8 h-8 rounded-full object-cover shrink-0"
-            />
-
-            <div className="min-w-0">
-              <div className="bg-gray-50 rounded-2xl px-3.5 py-2">
-                <h4 className="text-xs font-semibold text-gray-900">
-                  {post.topComment.commentCreator.name}
-                </h4>
-                <p className="text-sm text-gray-700 break-words whitespace-pre-line">
-                  {post.topComment.content}
-                </p>
-              </div>
-
-              {post.topComment.image && (
-                <img
-                  src={post.topComment.image}
-                  alt="Comment attachment"
-                  loading="lazy"
-                  className="mt-2 max-h-48 rounded-xl border border-gray-100 object-cover"
-                />
-              )}
-
-              <p className="mt-1 ml-3 text-xs text-gray-400">
-                {timeAgo(post.topComment.createdAt)}
-                {post.commentsCount > 1 && (
-                  <span> · View all {post.commentsCount} comments</span>
-                )}
-              </p>
-            </div>
+      {/* Comments */}
+      {isPostDetails ? (
+        <>
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <CommentForm postId={post._id} />
           </div>
-        </div>
+
+          {AllComments && (
+            <div className="mt-4 space-y-4">
+              {AllComments.length === 0 ? (
+                <p className="text-center text-sm text-gray-500 py-4">
+                  No comments yet. Be the first to comment!
+                </p>
+              ) : (
+                AllComments.map((comment) => (
+                  <CommentItem key={comment._id} comment={comment} />
+                ))
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        post.topComment && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <CommentItem comment={post.topComment} />
+            {post.commentsCount > 1 && (
+              <Link
+                to={`/${post.id}`}
+                className="mt-2 ml-10 block text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                View all {post.commentsCount} comments
+              </Link>
+            )}
+          </div>
+        )
       )}
     </article>
   );

@@ -10,18 +10,18 @@ export interface Comment {
   content: string;
   image?: string;
   commentCreator: User;
-  post: string;                 
+  post: string;
   parentComment: string | null;
-  likes: string[];              
+  likes: string[];
   createdAt: string;
 }
 
 interface PostBase {
   _id: string;
   id: string;
-  body?: string;                
-  image?: string;               
-  privacy: "public" | "private" | "followers"; 
+  body?: string;
+  image?: string;
+  privacy: "public" | "private" | "followers";
   user: User;
   likes: string[];
   likesCount: number;
@@ -33,12 +33,12 @@ interface PostBase {
 }
 
 export interface SharedPost extends PostBase {
-  sharedPost: null;      
+  sharedPost: null;
 }
 
 export interface Post extends PostBase {
   sharedPost: SharedPost | null;
-  bookmarked: boolean;      
+  bookmarked: boolean;
 }
 
 export interface Pagination {
@@ -57,3 +57,7 @@ export interface ApiResponse<T> {
 }
 
 export type PostsResponse = ApiResponse<{ posts: Post[] }>;
+
+export type CommentsResponse = ApiResponse<{ comments: Comment[] }>;
+
+export type SinglePostResponse = ApiResponse<{ post: Post }>;

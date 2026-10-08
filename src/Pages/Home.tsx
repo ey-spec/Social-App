@@ -1,18 +1,15 @@
 import axios from "axios";
-import React, { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import type { PostsResponse } from "../Types/post.types";
 import PostCard from "../Components/Posts/PostCard";
 import Loader from "../Components/Common/Loader";
 
 export default function Home() {
-  const { UserToken } = useContext(AuthContext);
 
   async function getPosts() {
     const { data } = await axios.get<PostsResponse>(
       "https://route-posts.routemisr.com/posts",
-      { headers: { Authorization: `Bearer ${UserToken}` } },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("UserToken")}` } },
     );
     return data.data.posts;
   }
@@ -42,7 +39,7 @@ export default function Home() {
   return (
     <div className="space-y-4">
       {posts?.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} isPostDetails={false} />
       ))}
     </div>
   );

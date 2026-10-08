@@ -10,6 +10,7 @@ import AuthContextProvider from "./context/AuthContext";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { GuestRoute } from "./Components/GuestRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import PostDetails from "./Pages/PostDetails";
 
 
 const query = new QueryClient()
@@ -41,6 +42,14 @@ const routes = createBrowserRouter([
           <GuestRoute>
             <LoginForm />
           </GuestRoute>
+        ),
+      },
+      {
+        path: "/:id",
+        element: (
+          <ProtectedRoute>
+            <PostDetails />
+          </ProtectedRoute>
         ),
       },
       { path: "*", element: <ErrorPage /> },

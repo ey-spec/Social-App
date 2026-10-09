@@ -1,9 +1,8 @@
-// src/Components/Posts/PostCard.tsx
 import { Link } from "react-router-dom";
 import { formatDate, timeAgo } from "../../Helpers/formatDate";
 import type { CommentsResponse, Post } from "../../Types/post.types";
 import { FaHeart, FaComment, FaShare } from "react-icons/fa";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import CommentItem from "../Comments/CommentItem";
 import CommentForm from "../Comments/CommentForm";
@@ -15,27 +14,38 @@ export default function PostCard({
   post: Post;
   isPostDetails: boolean;
 }) {
-  async function getPostComments() {
+  async function getPostComments({ pageParam }: { pageParam: number }) {
     const { data } = await axios.get<CommentsResponse>(
-      `https://route-posts.routemisr.com/posts/${post._id}/comments?page=1&limit=10`,
+      `https://route-posts.routemisr.com/posts/${post._id}/comments`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("UserToken")}`,
         },
+        params: { page: pageParam, limit: 10 },
       },
     );
-    return data.data.comments;
+    console.log(data);
+
+    return data;
   }
 
   const {
-    data: AllComments,
+    data: allComments,
     isError,
     error,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["PostComments", post._id],
     queryFn: getPostComments,
     enabled: isPostDetails,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.meta?.pagination.nextPage ?? undefined,
   });
+
+  const AllComments = allComments?.pages.flatMap((page) => page.data.comments);
 
   if (isError) {
     return (
@@ -115,7 +125,12 @@ export default function PostCard({
       {isPostDetails ? (
         <>
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <CommentForm postId={post._id} />
+            <CommentForm
+              postId={post._id}
+              queryKey={
+                isPostDetails ? ["PostComments", post._id] : ["AllPosts"]
+              }
+            />
           </div>
 
           {AllComments && (
@@ -128,6 +143,16 @@ export default function PostCard({
                 AllComments.map((comment) => (
                   <CommentItem key={comment._id} comment={comment} />
                 ))
+              )}
+              {hasNextPage && (
+                <button
+                  type="button"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="mx-auto block text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isFetchingNextPage ? "Loading..." : "Load more comments"}
+                </button>
               )}
             </div>
           )}

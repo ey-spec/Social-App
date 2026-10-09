@@ -1,5 +1,4 @@
-// src/Components/Comments/CommentForm.tsx
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaPaperPlane, FaTimes } from "react-icons/fa";
@@ -12,8 +11,15 @@ interface commentData {
   image: FileList;
 }
 
-export default function CommentForm({ postId }: { postId: string }) {
+export default function CommentForm({
+  postId,
+  queryKey,
+}: {
+  postId: string;
+  queryKey: string[];
+}) {
   const [imageSrc, setimageSrc] = useState("");
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit, reset } = useForm<commentData>({
     defaultValues: {
@@ -23,7 +29,7 @@ export default function CommentForm({ postId }: { postId: string }) {
 
   const { onChange: onImageChange, ...imageField } = register("image");
 
-   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     onImageChange(e);
     const file = e.target.files?.[0];
     if (file) setimageSrc(URL.createObjectURL(file));
@@ -57,6 +63,7 @@ export default function CommentForm({ postId }: { postId: string }) {
       showSuccessToast(res.data.message || "Comment added");
       reset();
       setimageSrc("");
+      queryClient.invalidateQueries({ queryKey: queryKey });
     },
     onError: (err) => {
       showErrorToast(
@@ -85,7 +92,7 @@ export default function CommentForm({ postId }: { postId: string }) {
             <FaTimes onClick={() => setimageSrc("")} className="w-2.5 h-2.5" />
           </button>
         </div>
-      ) }
+      )}
 
       {/* Input row */}
       <div className="flex items-center gap-2">

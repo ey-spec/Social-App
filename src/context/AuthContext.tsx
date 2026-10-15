@@ -1,11 +1,10 @@
-import { createContext, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "./auth.context";
 
-interface AuthContextType {
-  UserToken: string | null;
-  setUserToken: (token: string | null) => void;
+interface TokenPayload {
+  user: string;
 }
-
-export const AuthContext = createContext<AuthContextType | null>(null);
 
 export default function AuthContextProvider({
   children,
@@ -16,8 +15,17 @@ export default function AuthContextProvider({
     localStorage.getItem("UserToken"),
   );
 
+  const UserId = useMemo(() => {
+    if (!UserToken) return null;
+    try {
+      return jwtDecode<TokenPayload>(UserToken).user;
+    } catch {
+      return null;
+    }
+  }, [UserToken]);
+
   return (
-    <AuthContext.Provider value={{ UserToken, setUserToken }}>
+    <AuthContext.Provider value={{ UserToken, setUserToken, UserId }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/auth.context";
+
 
 export default function Navbar() {
   const [isClicked, setIsClicked] = useState(false);
@@ -46,6 +47,19 @@ export default function Navbar() {
                   }
                 >
                   Home
+                </NavLink>
+                <NavLink
+                  to="/profile"
+                  end
+                  className={({ isActive }) =>
+                    `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? "text-indigo-600 bg-indigo-50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  Profile
                 </NavLink>
                 <button
                   onClick={logout}
@@ -123,6 +137,20 @@ export default function Navbar() {
                 }
               >
                 Home
+              </NavLink>
+              <NavLink
+                to="/profile"
+                end
+                onClick={() => setIsClicked(false)}
+                className={({ isActive }) =>
+                  `block px-3 py-2 text-sm font-medium rounded-lg transition-colors w-[95%] mx-auto  ${
+                    isActive
+                      ? "text-indigo-600 bg-indigo-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`
+                }
+              >
+                Profile
               </NavLink>
               <button
                 onClick={() => {

@@ -5,7 +5,7 @@ import { loginSchema, type LoginFormData } from "../schemas/Login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/auth.context";
 
 export default function LoginForm() {
   const form = useForm<LoginFormData>({
@@ -24,7 +24,7 @@ export default function LoginForm() {
 
   const navigate = useNavigate();
 
-  const { UserToken, setUserToken } = useContext(AuthContext);
+  const { setUserToken } = useContext(AuthContext);
 
   async function onSubmit(data: LoginFormData) {
     try {

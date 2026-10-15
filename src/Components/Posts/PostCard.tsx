@@ -1,19 +1,61 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatDate, timeAgo } from "../../Helpers/formatDate";
 import type { CommentsResponse, Post } from "../../Types/post.types";
-import { FaHeart, FaComment, FaShare } from "react-icons/fa";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  FaHeart,
+  FaComment,
+  FaShare,
+  FaEllipsisV,
+  FaEdit,
+  FaTrash,
+  FaBookmark,
+} from "react-icons/fa";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import axios from "axios";
 import CommentItem from "../Comments/CommentItem";
 import CommentForm from "../Comments/CommentForm";
+import { useContext, useState } from "react";
+import { showSuccessToast } from "../../lib/toast";
+import { AuthContext } from "../../context/auth.context";
 
 export default function PostCard({
   post,
   isPostDetails,
 }: {
   post: Post;
-  isPostDetails: boolean;
+  isPostDetails?: boolean;
 }) {
+  const queryClient = useQueryClient();
+  const [actionsClicked, setactionsClicked] = useState(null);
+  const { UserId } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  function handleDeletePost() {
+    return axios.delete(`https://route-posts.routemisr.com/posts/${post._id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("UserToken")}` },
+    });
+  }
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: handleDeletePost,
+    onSuccess: (res) => {
+      showSuccessToast(res.data.message || "Post Deleted");
+      queryClient.invalidateQueries({
+        queryKey: ["AllPosts"],
+        refetchType: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["MyPosts"],
+        refetchType: "all",
+      });
+      if (isPostDetails) navigate("/");
+    },
+  });
+
   async function getPostComments({ pageParam }: { pageParam: number }) {
     const { data } = await axios.get<CommentsResponse>(
       `https://route-posts.routemisr.com/posts/${post._id}/comments`,
@@ -24,8 +66,6 @@ export default function PostCard({
         params: { page: pageParam, limit: 10 },
       },
     );
-    console.log(data);
-
     return data;
   }
 
@@ -56,6 +96,7 @@ export default function PostCard({
       </div>
     );
   }
+
   return (
     <article className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white shadow-lg shadow-indigo-100/60 p-5">
       {/* User details */}
@@ -76,6 +117,48 @@ export default function PostCard({
             </time>
           </p>
         </div>
+        {/* Options menu */}
+
+        {post.user._id === UserId && (
+          <div className="relative ml-auto">
+            <button
+              type="button"
+              onClick={() => setactionsClicked(!actionsClicked)}
+              className="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+            >
+              <FaEllipsisV className="w-4 h-4" />
+            </button>
+            {actionsClicked && (
+              <div className="absolute right-0 top-10 z-20 w-40 rounded-xl bg-white border border-gray-100 shadow-lg shadow-indigo-100/60 py-1.5">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                >
+                  <FaEdit className="w-4 h-4" />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                >
+                  <FaBookmark className="w-4 h-4" />
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mutate()}
+                  disabled={isPending}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                >
+                  <FaTrash
+                    className={`w-4 h-4 ${isPending ? "animate-pulse" : ""}`}
+                  />
+                  {isPending ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {/* Post content */}
       <div className="mt-4 space-y-3">

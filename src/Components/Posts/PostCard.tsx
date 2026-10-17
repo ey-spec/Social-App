@@ -69,6 +69,8 @@ export default function PostCard({
     return data;
   }
 
+  
+
   const {
     data: allComments,
     isError,
@@ -210,9 +212,6 @@ export default function PostCard({
           <div className="mt-4 pt-4 border-t border-gray-100">
             <CommentForm
               postId={post._id}
-              queryKey={
-                isPostDetails ? ["PostComments", post._id] : ["AllPosts"]
-              }
             />
           </div>
 
@@ -224,7 +223,7 @@ export default function PostCard({
                 </p>
               ) : (
                 AllComments.map((comment) => (
-                  <CommentItem key={comment._id} comment={comment} />
+                  <CommentItem key={comment._id} comment={comment} postId={post._id} />
                 ))
               )}
               {hasNextPage && (
@@ -243,7 +242,7 @@ export default function PostCard({
       ) : (
         post.topComment && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <CommentItem comment={post.topComment} />
+            <CommentItem comment={post.topComment} postId={post._id} />
             {post.commentsCount > 1 && (
               <Link
                 to={`/${post.id}`}

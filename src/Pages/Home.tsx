@@ -16,7 +16,6 @@ export default function Home() {
         params: { page: pageParam, limit: 10 },
       },
     );
-    console.log(data.data.posts.map((post)=>post.user._id))
     return data;
   }
 
@@ -37,7 +36,6 @@ export default function Home() {
   });
 
   const posts = data?.pages.flatMap((page) => page.data.posts);
-  console.log(posts);
   if (isLoading) return <Loader />;
 
   if (isError) {

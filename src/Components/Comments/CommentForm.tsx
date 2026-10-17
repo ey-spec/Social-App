@@ -11,13 +11,7 @@ interface commentData {
   image: FileList;
 }
 
-export default function CommentForm({
-  postId,
-  queryKey,
-}: {
-  postId: string;
-  queryKey: string[];
-}) {
+export default function CommentForm({ postId }: { postId: string }) {
   const [imageSrc, setimageSrc] = useState("");
   const queryClient = useQueryClient();
 
@@ -63,7 +57,10 @@ export default function CommentForm({
       showSuccessToast(res.data.message || "Comment added");
       reset();
       setimageSrc("");
-      queryClient.invalidateQueries({ queryKey: queryKey });
+      queryClient.invalidateQueries({ queryKey: ["PostComments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["PostDetails", postId] });
+      queryClient.invalidateQueries({ queryKey: ["AllPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["MyPosts"] });
     },
     onError: (err) => {
       showErrorToast(

@@ -29,6 +29,8 @@ export default function PostCreationForm({ post }: { post?: Post }) {
   const hasChanges =
     body !== (post?.body ?? "") || imageSrc !== (post?.image ?? "");
 
+  const showSubmit = isEdit || !!body.trim() || !!imageSrc;
+
   const { onChange: onImageChange, ...imageField } = register("image");
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -40,7 +42,7 @@ export default function PostCreationForm({ post }: { post?: Post }) {
   function handleAddPost(values: PostData) {
     const formData = new FormData();
     const file = values.image?.[0];
-    if (values.body || isEdit) formData.append("body", values.body);
+    if (values.body ) formData.append("body", values.body);
     if (file) formData.append("image", file);
     mutate(formData);
   }
@@ -125,21 +127,22 @@ export default function PostCreationForm({ post }: { post?: Post }) {
           {...imageField}
           onChange={handleImageChange}
         />
-
-        <button
-          disabled={isPending || (isEdit && !hasChanges)}
-          type="submit"
-          className="flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPending ? (
-            <ImSpinner9 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <>
-              <FaPaperPlane className="w-3.5 h-3.5" />
-              <span>{isEdit ? "Update" : "Post"}</span>
-            </>
-          )}
-        </button>
+        {showSubmit && (
+          <button
+            disabled={isPending || (isEdit && (!hasChanges || !body.trim()))}
+            type="submit"
+            className="flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? (
+              <ImSpinner9 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <>
+                <FaPaperPlane className="w-3.5 h-3.5" />
+                <span>{isEdit ? "Update" : "Post"}</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </form>
   );

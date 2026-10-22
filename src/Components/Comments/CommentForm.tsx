@@ -39,10 +39,12 @@ export default function CommentForm({
     }
   }, [editingComment, setValue, setFocus]);
 
-  const content = watch("content") ?? "";
+  const content = watch("content");
   const hasChanges =
     content !== (editingComment?.content ?? "") ||
     imageSrc !== (editingComment?.image ?? "");
+
+  const showSubmit = !!editingComment || !!content.trim() || !!imageSrc;
 
   const { onChange: onImageChange, ...imageField } = register("image");
 
@@ -55,7 +57,8 @@ export default function CommentForm({
   function handleAddComment(values: commentData) {
     const formData = new FormData();
     const file = values.image?.[0];
-    if (values.content || editingComment) formData.append("content", values.content);
+    if (!values.content.trim() && !file) return;
+    if (values.content) formData.append("content", values.content);
     if (file) formData.append("image", file);
 
     mutate(formData);
@@ -158,18 +161,22 @@ export default function CommentForm({
           className="flex-1 min-w-0 rounded-full bg-gray-50 px-4 py-2 text-sm text-gray-800 placeholder-gray-400 border border-transparent focus:outline-none focus:border-indigo-300 focus:bg-white transition-colors"
           {...register("content")}
         />
-
-        <button
-          disabled={isPending || (!!editingComment && !hasChanges)}
-          type="submit"
-          className="shrink-0 flex items-center disabled:bg-slate-600 disabled:cursor-not-allowed justify-center w-9 h-9 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-        >
-          {isPending ? (
-            <ImSpinner9 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <FaPaperPlane className="w-3.5 h-3.5" />
-          )}
-        </button>
+        {showSubmit && (
+          <button
+            disabled={
+              isPending ||
+              (!!editingComment && (!hasChanges || !content.trim()))
+            }
+            type="submit"
+            className="shrink-0 flex items-center disabled:bg-slate-600 disabled:cursor-not-allowed justify-center w-9 h-9 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          >
+            {isPending ? (
+              <ImSpinner9 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <FaPaperPlane className="w-3.5 h-3.5" />
+            )}
+          </button>
+        )}
       </div>
     </form>
   );

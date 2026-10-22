@@ -1,5 +1,4 @@
 import axios from "axios";
-import React, { useContext } from "react";
 import {
   FaEnvelope,
   FaBirthdayCake,
@@ -16,6 +15,7 @@ import type { PostsResponse } from "../Types/post.types";
 import PostCard from "../Components/Posts/PostCard";
 import { AuthContext } from "../context/auth.context";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 export default function Profile() {
   async function getMyProfileDetails() {

@@ -40,8 +40,7 @@ export default function PostCreationForm({ post }: { post?: Post }) {
   function handleAddPost(values: PostData) {
     const formData = new FormData();
     const file = values.image?.[0];
-    if (!values.body && !imageSrc) return;
-    if (values.body) formData.append("body", values.body);
+    if (values.body || isEdit) formData.append("body", values.body);
     if (file) formData.append("image", file);
     mutate(formData);
   }

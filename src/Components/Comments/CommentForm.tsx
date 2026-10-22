@@ -55,8 +55,7 @@ export default function CommentForm({
   function handleAddComment(values: commentData) {
     const formData = new FormData();
     const file = values.image?.[0];
-    if (!values.content && !file) return;
-    if (values.content) formData.append("content", values.content);
+    if (values.content || editingComment) formData.append("content", values.content);
     if (file) formData.append("image", file);
 
     mutate(formData);

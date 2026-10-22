@@ -41,10 +41,6 @@ export default function PostCreationForm({ post }: { post?: Post }) {
     const formData = new FormData();
     const file = values.image?.[0];
     if (!values.body && !imageSrc) return;
-    if (isEdit && !values.body && post?.body) {
-      showErrorToast("Post text can't be cleared");
-      return;
-    }
     if (values.body) formData.append("body", values.body);
     if (file) formData.append("image", file);
     mutate(formData);

@@ -191,7 +191,7 @@ export default function PostCard({
         </button>
 
         <Link
-          to={`posts/${post._id}`}
+          to={`/posts/${post._id}`}
           type="button"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-600 transition-colors"
         >
@@ -225,7 +225,7 @@ export default function PostCard({
                   No comments yet. Be the first to comment!
                 </p>
               ) : (
-                AllComments.map((comment : Comment) => (
+                AllComments.map((comment: Comment) => (
                   <CommentItem
                     key={comment._id}
                     comment={comment}
@@ -257,7 +257,7 @@ export default function PostCard({
             />
             {post.commentsCount > 1 && (
               <Link
-                to={`/${post.id}`}
+                to={`/posts/${post._id}`}
                 className="mt-2 ml-10 block text-xs text-gray-400 hover:text-gray-600 transition-colors"
               >
                 View all {post.commentsCount} comments

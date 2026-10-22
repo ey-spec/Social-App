@@ -12,6 +12,8 @@ import { GuestRoute } from "./Components/GuestRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PostDetails from "./Pages/PostDetails";
 import Profile from "./Pages/Profile";
+import UpdatePost from "./Components/Posts/UpdatePost";
+import ChangePassword from "./Pages/ChangePassword";
 
 const query = new QueryClient();
 
@@ -53,7 +55,23 @@ const routes = createBrowserRouter([
         ),
       },
       {
-        path: "/:id",
+        path: "posts/:id/edit",
+        element: (
+          <ProtectedRoute>
+            <UpdatePost />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "change-password",
+        element: (
+          <ProtectedRoute>
+            <ChangePassword />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "posts/:id",
         element: (
           <ProtectedRoute>
             <PostDetails />

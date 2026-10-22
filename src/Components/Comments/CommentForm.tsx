@@ -4,22 +4,45 @@ import { useForm } from "react-hook-form";
 import { FaPlus, FaPaperPlane, FaTimes } from "react-icons/fa";
 import { ImSpinner9 } from "react-icons/im";
 import { showErrorToast, showSuccessToast } from "../../lib/toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Comment } from "../../Types/post.types";
 
 interface commentData {
   content: string;
   image: FileList;
 }
 
-export default function CommentForm({ postId }: { postId: string }) {
+export default function CommentForm({
+  postId,
+  editingComment,
+  onDone,
+}: {
+  postId: string;
+  editingComment: Comment | null;
+  onDone: () => void;
+}) {
   const [imageSrc, setimageSrc] = useState("");
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, reset } = useForm<commentData>({
-    defaultValues: {
-      content: "",
-    },
-  });
+  const { register, handleSubmit, reset, setValue, setFocus, watch } =
+    useForm<commentData>({
+      defaultValues: {
+        content: "",
+      },
+    });
+
+  useEffect(() => {
+    if (editingComment) {
+      setValue("content", editingComment.content ?? "");
+      setimageSrc(editingComment.image ?? "");
+      setFocus("content");
+    }
+  }, [editingComment, setValue, setFocus]);
+
+  const content = watch("content") ?? "";
+  const hasChanges =
+    content !== (editingComment?.content ?? "") ||
+    imageSrc !== (editingComment?.image ?? "");
 
   const { onChange: onImageChange, ...imageField } = register("image");
 
@@ -39,23 +62,22 @@ export default function CommentForm({ postId }: { postId: string }) {
     mutate(formData);
   }
 
-  function addComment(formData: FormData) {
-    return axios.post(
-      `https://route-posts.routemisr.com/posts/${postId}/comments`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("UserToken")}`,
-        },
-      },
-    );
+  function saveComment(formData: FormData) {
+    const config = {
+      headers: { Authorization: `Bearer ${localStorage.getItem("UserToken")}` },
+    };
+    const url = `https://route-posts.routemisr.com/posts/${postId}/comments`;
+    return editingComment
+      ? axios.put(`${url}/${editingComment._id}`, formData, config)
+      : axios.post(url, formData, config);
   }
 
   const { isPending, mutate } = useMutation({
-    mutationFn: addComment,
+    mutationFn: saveComment,
     onSuccess: (res) => {
       showSuccessToast(res.data.message || "Comment added");
       reset();
+      onDone();
       setimageSrc("");
       queryClient.invalidateQueries({ queryKey: ["PostComments", postId] });
       queryClient.invalidateQueries({ queryKey: ["PostDetails", postId] });
@@ -64,7 +86,9 @@ export default function CommentForm({ postId }: { postId: string }) {
     },
     onError: (err) => {
       showErrorToast(
-        axios.isAxiosError(err) ? err.message : "Something went wrong.",
+        axios.isAxiosError(err)
+          ? err.response?.data?.message || err.message
+          : "Something went wrong.",
       );
     },
   });
@@ -74,6 +98,22 @@ export default function CommentForm({ postId }: { postId: string }) {
       onSubmit={handleSubmit(handleAddComment)}
       className="rounded-2xl bg-white/80 border border-white shadow-sm shadow-indigo-100/60 p-3"
     >
+      {editingComment && (
+        <div className="mb-2 flex items-center justify-between rounded-lg bg-indigo-50 px-3 py-1.5 text-xs text-indigo-700">
+          <span>Editing comment</span>
+          <button
+            type="button"
+            onClick={() => {
+              reset();
+              setimageSrc("");
+              onDone();
+            }}
+            className="font-medium hover:text-red-500 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
       {/* Image preview */}
       {imageSrc && (
         <div className="relative mb-2 w-16 h-16">
@@ -82,12 +122,17 @@ export default function CommentForm({ postId }: { postId: string }) {
             alt="Selected"
             className="w-16 h-16 rounded-lg object-cover border border-gray-200"
           />
-          <button
-            type="button"
-            className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-gray-800 text-white hover:bg-red-500 transition-colors"
-          >
-            <FaTimes onClick={() => setimageSrc("")} className="w-2.5 h-2.5" />
-          </button>
+          {imageSrc !== editingComment?.image && (
+            <button
+              type="button"
+              className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-gray-800 text-white hover:bg-red-500 transition-colors"
+            >
+              <FaTimes
+                onClick={() => setimageSrc("")}
+                className="w-2.5 h-2.5"
+              />
+            </button>
+          )}
         </div>
       )}
 
@@ -116,7 +161,7 @@ export default function CommentForm({ postId }: { postId: string }) {
         />
 
         <button
-          disabled={isPending}
+          disabled={isPending || (!!editingComment && !hasChanges)}
           type="submit"
           className="shrink-0 flex items-center disabled:bg-slate-600 disabled:cursor-not-allowed justify-center w-9 h-9 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
         >

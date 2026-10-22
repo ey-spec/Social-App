@@ -5,6 +5,7 @@ import {
   FaBirthdayCake,
   FaVenusMars,
   FaCalendarAlt,
+  FaLock,
 } from "react-icons/fa";
 import type { ProfileResponse } from "../Types/user.types";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import type { PostsResponse } from "../Types/post.types";
 
 import PostCard from "../Components/Posts/PostCard";
 import { AuthContext } from "../context/auth.context";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   async function getMyProfileDetails() {
@@ -171,6 +173,15 @@ export default function Profile() {
               Joined {profile && formatDate(profile?.createdAt)}
             </li>
           </ul>
+          <Link
+            to="/change-password"
+            className="mt-6 flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+          >
+            <span className="flex items-center justify-center w-9 h-9 shrink-0 rounded-full bg-indigo-50 text-indigo-600">
+              <FaLock className="w-4 h-4" />
+            </span>
+            Change password
+          </Link>
         </div>
       </div>
 
@@ -178,7 +189,7 @@ export default function Profile() {
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-gray-900">Posts</h2>
         {profilePosts?.map((post) => (
-          <PostCard key={post.id} post={post} isPostDetails={false} isProfile />
+          <PostCard key={post.id} post={post} isPostDetails={false} />
         ))}
       </section>
     </div>

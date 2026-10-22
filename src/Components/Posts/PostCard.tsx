@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { formatDate, timeAgo } from "../../Helpers/formatDate";
-import type { CommentsResponse, Post } from "../../Types/post.types";
+import type { Comment, CommentsResponse, Post } from "../../Types/post.types";
 import {
   FaHeart,
   FaComment,
@@ -30,9 +30,10 @@ export default function PostCard({
   isPostDetails?: boolean;
 }) {
   const queryClient = useQueryClient();
-  const [actionsClicked, setactionsClicked] = useState(null);
+  const [actionsClicked, setactionsClicked] = useState(false);
   const { UserId } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [editingComment, setEditingComment] = useState<Comment | null>(null);
 
   function handleDeletePost() {
     return axios.delete(`https://route-posts.routemisr.com/posts/${post._id}`, {
@@ -68,8 +69,6 @@ export default function PostCard({
     );
     return data;
   }
-
-  
 
   const {
     data: allComments,
@@ -132,13 +131,15 @@ export default function PostCard({
             </button>
             {actionsClicked && (
               <div className="absolute right-0 top-10 z-20 w-40 rounded-xl bg-white border border-gray-100 shadow-lg shadow-indigo-100/60 py-1.5">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                >
-                  <FaEdit className="w-4 h-4" />
-                  Edit
-                </button>
+                <Link to={`/posts/${post._id}/edit`}>
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    Edit
+                  </button>
+                </Link>
                 <button
                   type="button"
                   className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
@@ -190,7 +191,7 @@ export default function PostCard({
         </button>
 
         <Link
-          to={`/${post._id}`}
+          to={`posts/${post._id}`}
           type="button"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-indigo-600 transition-colors"
         >
@@ -212,6 +213,8 @@ export default function PostCard({
           <div className="mt-4 pt-4 border-t border-gray-100">
             <CommentForm
               postId={post._id}
+              editingComment={editingComment}
+              onDone={() => setEditingComment(null)}
             />
           </div>
 
@@ -222,8 +225,13 @@ export default function PostCard({
                   No comments yet. Be the first to comment!
                 </p>
               ) : (
-                AllComments.map((comment) => (
-                  <CommentItem key={comment._id} comment={comment} postId={post._id} />
+                AllComments.map((comment : Comment) => (
+                  <CommentItem
+                    key={comment._id}
+                    comment={comment}
+                    postId={post._id}
+                    onEdit={() => setEditingComment(comment)}
+                  />
                 ))
               )}
               {hasNextPage && (
@@ -242,7 +250,11 @@ export default function PostCard({
       ) : (
         post.topComment && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <CommentItem comment={post.topComment} postId={post._id} />
+            <CommentItem
+              comment={post.topComment}
+              postId={post._id}
+              showActions={false}
+            />
             {post.commentsCount > 1 && (
               <Link
                 to={`/${post.id}`}

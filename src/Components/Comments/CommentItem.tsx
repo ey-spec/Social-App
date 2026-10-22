@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { timeAgo } from "../../Helpers/formatDate";
+import { formatDate, timeAgoShort } from "../../Helpers/formatDate";
 import type { Comment } from "../../Types/post.types";
 import { FaEllipsisV, FaEdit, FaTrash } from "react-icons/fa";
 import { AuthContext } from "../../context/auth.context";
@@ -10,15 +10,19 @@ import { showSuccessToast } from "../../lib/toast";
 export default function CommentItem({
   comment,
   postId,
+  onEdit,
+  showActions = true
 }: {
   comment: Comment;
   postId: string;
+  onEdit?: () => void;
+  showActions?: boolean;
 }) {
-  const [actionsClicked, setactionsClicked] = useState(null);
+  const [actionsClicked, setactionsClicked] = useState(false);
   const { UserId } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
-  function handleDeletePost() {
+  function handleDeleteComment() {
     return axios.delete(
       `https://route-posts.routemisr.com/posts/${postId}/comments/${comment._id}`,
       {
@@ -30,7 +34,7 @@ export default function CommentItem({
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: handleDeletePost,
+    mutationFn: handleDeleteComment,
     onSuccess: (res) => {
       showSuccessToast(res.data.message || "Comment Deleted");
       queryClient.invalidateQueries({
@@ -63,7 +67,7 @@ export default function CommentItem({
           </div>
 
           {/* Options menu */}
-          {comment.commentCreator._id === UserId && (
+          {showActions && comment.commentCreator._id === UserId && (
             <div className="relative shrink-0">
               <button
                 type="button"
@@ -77,6 +81,10 @@ export default function CommentItem({
                 <div className="absolute right-0 top-9 z-20 w-36 rounded-xl bg-white border border-gray-100 shadow-lg shadow-indigo-100/60 py-1.5">
                   <button
                     type="button"
+                    onClick={() => {
+                      onEdit?.();
+                      setactionsClicked(false);
+                    }}
                     className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
                   >
                     <FaEdit className="w-4 h-4" />
@@ -84,8 +92,9 @@ export default function CommentItem({
                   </button>
                   <button
                     type="button"
-                    onClick={() => {mutate()
-                      setactionsClicked(false)
+                    onClick={() => {
+                      mutate();
+                      setactionsClicked(false);
                     }}
                     disabled={isPending}
                     className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-transparent"
@@ -109,9 +118,27 @@ export default function CommentItem({
             className="mt-2 max-h-48 rounded-xl border border-gray-100 object-cover"
           />
         )}
-        <p className="mt-1 ml-3 text-xs text-gray-400">
-          {timeAgo(comment.createdAt)}
-        </p>
+        <div className="mt-1 ml-3 flex items-center gap-3 text-xs text-gray-500">
+          <button
+            type="button"
+            className="font-medium hover:text-rose-500 transition-colors"
+          >
+            Like
+          </button>
+          <button
+            type="button"
+            className="font-medium hover:text-indigo-600 transition-colors"
+          >
+            Reply
+          </button>
+          <time
+            dateTime={comment.createdAt}
+            title={formatDate(comment.createdAt)}
+            className="text-gray-400"
+          >
+            {timeAgoShort(comment.createdAt)}
+          </time>
+        </div>
       </div>
     </div>
   );
